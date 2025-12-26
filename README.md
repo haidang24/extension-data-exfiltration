@@ -1,167 +1,192 @@
-# Cookie Extension & Notes Plus
+# Cookie Extension & Notes Management System
 
-Dự án bao gồm hai thành phần chính: **Notes Extension** - Chrome Extension quản lý ghi chú chuyên nghiệp và **C2 Server** - Server quản lý cookies với giao diện dashboard hiện đại.
+A comprehensive project consisting of two main components: **Notes Extension** - a professional Chrome extension for note management, and **C2 Server** - a modern cookie management server with an advanced dashboard interface.
 
-## 📋 Mục lục
+## Table of Contents
 
-- [Tính năng](#-tính-năng)
-- [Cài đặt](#-cài-đặt)
-- [Hướng dẫn sử dụng](#-hướng-dẫn-sử-dụng)
-- [Cấu trúc dự án](#-cấu-trúc-dự-án)
-- [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-- [API Documentation](#-api-documentation)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Technology Stack](#technology-stack)
+- [API Documentation](#api-documentation)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-## ✨ Tính năng
+## Overview
 
-### Notes Plus - Chrome Extension
+This project provides a complete solution for note-taking and cookie management. The Notes Extension offers a feature-rich interface for managing personal notes directly in the browser, while the C2 Server provides a professional dashboard for monitoring and analyzing cookie data in real-time.
 
-#### 🎨 Giao diện
+### Notes Extension
 
-- **Dark/Light Mode**: Chuyển đổi theme dễ dàng
-- **Modern UI**: Giao diện hiện đại với animations mượt mà
-- **Responsive Design**: Tối ưu cho mọi kích thước màn hình
-- **Color Coding**: Hệ thống màu sắc cho từng ghi chú
-
-#### 📝 Quản lý Ghi chú
-
-- **Tạo ghi chú nhanh**: Thêm ghi chú với textarea
-- **Chỉnh sửa inline**: Click vào ghi chú để chỉnh sửa trực tiếp
-- **Ghim ghi chú**: Đánh dấu ghi chú quan trọng
-- **Xóa ghi chú**: Xóa từng ghi chú hoặc nhiều ghi chú
-- **Nhãn phân loại**: Phân loại ghi chú (Công việc, Cá nhân, Quan trọng)
-- **Lưu trữ local**: Dữ liệu được lưu trong Chrome Storage
-
-#### 🔍 Tìm kiếm & Lọc
-
-- **Tìm kiếm real-time**: Tìm kiếm theo nội dung hoặc nhãn
-- **Lọc theo nhãn**: Lọc ghi chú theo category
-- **Lọc ghi chú đã ghim**: Xem nhanh các ghi chú quan trọng
-- **Sắp xếp**: Sắp xếp theo mới nhất, cũ nhất, đã ghim, hoặc theo nhãn
-
-#### ⚡ Tính năng nâng cao
-
-- **Context Menu**: Lưu text đã chọn vào ghi chú từ context menu
-- **Notifications**: Thông báo khi lưu ghi chú thành công
-- **Auto-save**: Tự động lưu khi tạo/chỉnh sửa
-- **Keyboard Shortcuts**:
-  - `Enter` để lưu ghi chú mới
-  - `Ctrl+Enter` để lưu khi chỉnh sửa
-  - `Escape` để hủy chỉnh sửa
-
-### C2 Server - Cookie Management
-
-#### 🎯 Dashboard Features
-
-- **Real-time Monitoring**: Theo dõi cookies nhận được theo thời gian thực
-- **Professional UI**: Giao diện C2 server style với dark theme
-- **Data Table**: Bảng dữ liệu với đầy đủ thông tin
-- **Search & Filter**: Tìm kiếm và lọc cookies
-- **Hide Duplicates**: Ẩn các cookie trùng lặp
-- **Export Data**: Xuất dữ liệu ra file JSON
-
-#### 📊 Analytics Dashboard
-
-- **Timeline Chart**: Biểu đồ thời gian nhận cookies
-- **Hourly Distribution**: Phân bố cookies theo giờ
-- **Daily Statistics**: Thống kê theo ngày
-- **Size Distribution**: Phân bố kích thước dữ liệu
-- **Activity Log**: Nhật ký hoạt động gần đây
-- **Real-time Stats**: Thống kê cập nhật tự động
-
-#### 🔧 Server Features
-
-- **RESTful API**: API endpoints đầy đủ
-- **CORS Support**: Hỗ trợ cross-origin requests
-- **Auto-refresh**: Tự động làm mới dữ liệu
-- **Cookie Management**: Quản lý, xóa cookies
-- **Timestamp Tracking**: Theo dõi thời gian nhận cookie
-
-## 🚀 Cài đặt
-
-### Yêu cầu hệ thống
-
-- Node.js >= 14.x
-- npm hoặc yarn
-- Google Chrome hoặc Chromium-based browser
-
-### Cài đặt Server
-
-```bash
-# Di chuyển vào thư mục server
-cd server_cookie
-
-# Cài đặt dependencies
-npm install
-
-# Khởi chạy server
-npm start
-
-# Hoặc sử dụng nodemon để auto-reload
-npm run start
-```
-
-Server sẽ chạy tại: `http://localhost:3000`
-
-### Cài đặt Chrome Extension
-
-1. Mở Google Chrome và truy cập `chrome://extensions/`
-2. Bật **Developer mode** (góc trên bên phải)
-3. Click **Load unpacked**
-4. Chọn thư mục `note_plus`
-5. Extension sẽ được cài đặt và hiển thị trong toolbar
-
-## 📖 Hướng dẫn sử dụng
-
-### Notes Plus Extension
-
-#### Tạo ghi chú mới
-
-1. Click vào icon extension trên toolbar
-2. Nhập nội dung ghi chú vào textarea
-3. Chọn màu và nhãn (tùy chọn)
-4. Click **Thêm Ghi Chú** hoặc nhấn `Enter`
-
-#### Chỉnh sửa ghi chú
-
-1. Click vào nội dung ghi chú muốn chỉnh sửa
-2. Chỉnh sửa trong textarea
-3. Click **Lưu** hoặc nhấn `Ctrl+Enter`
-4. Click **Hủy** hoặc nhấn `Escape` để hủy
-
-#### Sử dụng Context Menu
-
-1. Chọn text trên trang web
-2. Right-click và chọn **Lưu vào Notes Plus**
-3. Ghi chú sẽ được tạo tự động
-
-#### Tìm kiếm và Lọc
-
-- Sử dụng thanh tìm kiếm để tìm ghi chú
-- Click vào các nút lọc để lọc theo nhãn
-- Sử dụng dropdown để sắp xếp
+A Chrome extension built with Manifest V3 that provides a modern, intuitive interface for note management. It includes features such as dark/light mode, color coding, search and filter capabilities, and seamless integration with browser context menus.
 
 ### C2 Server
 
-#### Xem Dashboard
+A Node.js-based server application with Express.js that receives, stores, and analyzes cookie data. The server features a professional dashboard interface inspired by C2 server design patterns, complete with real-time analytics and data visualization.
 
-1. Mở trình duyệt và truy cập `http://localhost:3000`
-2. Xem danh sách cookies trong bảng
-3. Sử dụng thanh tìm kiếm để tìm cookie
-4. Bật **Hide Duplicates** để ẩn cookie trùng
+## Features
 
-#### Xem Analytics
+### Notes Extension
 
-1. Click vào **Analytics** trong sidebar
-2. Xem các biểu đồ và thống kê
-3. Chọn time range cho timeline chart
-4. Bật **Hide Duplicates** để phân tích dữ liệu unique
+#### User Interface
 
-#### Gửi Cookie đến Server
+- **Dark/Light Mode**: Seamless theme switching with persistent preferences
+- **Modern UI Design**: Clean, professional interface with smooth animations
+- **Responsive Layout**: Optimized for various screen sizes and resolutions
+- **Color Coding System**: Visual organization through color-coded notes
+
+#### Note Management
+
+- **Quick Note Creation**: Fast note entry with textarea input
+- **Inline Editing**: Direct editing by clicking on note content
+- **Pin Functionality**: Mark important notes for quick access
+- **Delete Operations**: Remove individual or multiple notes
+- **Label System**: Categorize notes (Work, Personal, Important)
+- **Local Storage**: Data persistence using Chrome Storage API
+
+#### Search and Filter
+
+- **Real-time Search**: Instant search across note content and labels
+- **Label Filtering**: Filter notes by category
+- **Pinned Notes Filter**: Quick access to important notes
+- **Sorting Options**: Sort by newest, oldest, pinned status, or label
+
+#### Advanced Features
+
+- **Context Menu Integration**: Save selected text as notes via right-click menu
+- **Notification System**: Success notifications for user actions
+- **Auto-save**: Automatic saving on create/edit operations
+- **Keyboard Shortcuts**:
+  - `Enter`: Save new note
+  - `Ctrl+Enter`: Save when editing
+  - `Escape`: Cancel editing
+
+### C2 Server
+
+#### Dashboard Features
+
+- **Real-time Monitoring**: Live tracking of received cookies
+- **Professional UI**: C2 server-style interface with dark theme
+- **Data Table**: Comprehensive data table with full information
+- **Search and Filter**: Advanced search and filtering capabilities
+- **Duplicate Hiding**: Option to hide duplicate cookie entries
+- **Data Export**: Export data to JSON format
+
+#### Analytics Dashboard
+
+- **Timeline Chart**: Visual representation of cookie reception over time
+- **Hourly Distribution**: Cookie distribution analysis by hour
+- **Daily Statistics**: Daily cookie reception statistics
+- **Size Distribution**: Data size distribution visualization
+- **Activity Log**: Recent activity tracking
+- **Real-time Statistics**: Auto-updating statistics
+
+#### Server Features
+
+- **RESTful API**: Complete REST API endpoints
+- **CORS Support**: Cross-origin request handling
+- **Auto-refresh**: Automatic data refresh functionality
+- **Cookie Management**: Full CRUD operations for cookies
+- **Timestamp Tracking**: Precise timestamp recording for each cookie
+
+## Installation
+
+### System Requirements
+
+- Node.js >= 14.x
+- npm >= 6.x or yarn >= 1.x
+- Google Chrome or Chromium-based browser (latest version)
+
+### Server Installation
+
+1. Navigate to the server directory:
+
+```bash
+cd c2-server
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the server:
+
+```bash
+npm start
+```
+
+For development with auto-reload:
+
+```bash
+npm run start
+```
+
+The server will be available at: `http://localhost:3000`
+
+### Chrome Extension Installation
+
+1. Open Google Chrome and navigate to `chrome://extensions/`
+2. Enable **Developer mode** (toggle in the top-right corner)
+3. Click **Load unpacked**
+4. Select the `note-extension` directory
+5. The extension will be installed and appear in the browser toolbar
+
+## Usage
+
+### Notes Extension
+
+#### Creating a New Note
+
+1. Click the extension icon in the browser toolbar
+2. Enter note content in the textarea
+3. Optionally select a color and label
+4. Click **Add Note** or press `Enter`
+
+#### Editing a Note
+
+1. Click on the note content you wish to edit
+2. Modify the content in the textarea
+3. Click **Save** or press `Ctrl+Enter`
+4. Click **Cancel** or press `Escape` to cancel
+
+#### Using Context Menu
+
+1. Select text on any webpage
+2. Right-click and select **Save to Notes Plus**
+3. The note will be created automatically
+
+#### Search and Filter
+
+- Use the search bar to find notes
+- Click filter buttons to filter by label
+- Use the dropdown menu to sort notes
+
+### C2 Server
+
+#### Viewing Dashboard
+
+1. Open a web browser and navigate to `http://localhost:3000`
+2. View the cookie list in the data table
+3. Use the search bar to find specific cookies
+4. Enable **Hide Duplicates** to filter duplicate entries
+
+#### Viewing Analytics
+
+1. Click **Analytics** in the sidebar
+2. View charts and statistics
+3. Select time range for timeline chart
+4. Enable **Hide Duplicates** for unique data analysis
+
+#### Sending Cookies to Server
 
 ```javascript
-// Sử dụng fetch API
+// Using fetch API
 fetch("http://localhost:3000/", {
   method: "POST",
   headers: {
@@ -173,54 +198,54 @@ fetch("http://localhost:3000/", {
   .then((data) => console.log(data));
 ```
 
-## 📁 Cấu trúc dự án
+## Project Structure
 
 ```
 cookie-extension/
-├── note-extension/                 # Chrome Extension
-│   ├── background.js         # Service worker
-│   ├── popup.html            # Giao diện popup
-│   ├── popup.js              # Logic popup
-│   ├── styles.css            # Styles (unused, styles inline)
-│   ├── manifest.json         # Extension manifest
-│   └── icons/                # Extension icons
+├── note-extension/              # Chrome Extension
+│   ├── background.js            # Service worker
+│   ├── popup.html               # Popup interface
+│   ├── popup.js                 # Popup logic
+│   ├── styles.css               # Styles (unused, styles inline)
+│   ├── manifest.json            # Extension manifest
+│   └── icons/                   # Extension icons
 │       ├── icon16.ico
 │       ├── icon48.ico
 │       └── icon128.ico
 │
-└── c2-server/            # Node.js Server
-    ├── server.js             # Server main file
-    ├── package.json          # Dependencies
-    ├── public/               # Static files
-    │   ├── index.html        # Dashboard page
-    │   ├── analytics.html    # Analytics page
-    │   └── styles.css        # Shared styles
-    └── node_modules/         # Dependencies
+└── c2-server/                   # Node.js Server
+    ├── server.js                # Server main file
+    ├── package.json             # Dependencies
+    ├── public/                  # Static files
+    │   ├── index.html           # Dashboard page
+    │   ├── analytics.html       # Analytics page
+    │   └── styles.css           # Shared styles
+    └── node_modules/            # Dependencies
 ```
 
-## 🛠 Công nghệ sử dụng
+## Technology Stack
 
-### Notes Plus
+### Notes Extension
 
-- **HTML5/CSS3**: Giao diện và styling
-- **Vanilla JavaScript**: Logic xử lý
+- **HTML5/CSS3**: Interface and styling
+- **Vanilla JavaScript**: Core logic and functionality
 - **Chrome Extension API**: Storage, Context Menus, Notifications
-- **Font Awesome**: Icons
-- **Chrome Storage API**: Lưu trữ dữ liệu local
+- **Font Awesome**: Icon library
+- **Chrome Storage API**: Local data persistence
 
 ### C2 Server
 
 - **Node.js**: Runtime environment
-- **Express.js**: Web framework
-- **Chart.js**: Biểu đồ và visualization
-- **Font Awesome**: Icons
-- **HTML5/CSS3**: Giao diện dashboard
+- **Express.js**: Web application framework
+- **Chart.js**: Data visualization and charting
+- **Font Awesome**: Icon library
+- **HTML5/CSS3**: Dashboard interface
 
-## 📡 API Documentation
+## API Documentation
 
 ### POST `/`
 
-Nhận cookie data từ client
+Receives cookie data from client.
 
 **Request:**
 
@@ -235,9 +260,13 @@ Body: cookie_data_string
 Cookie đã được nhận thành công!
 ```
 
+**Status Codes:**
+
+- `200 OK`: Cookie received successfully
+
 ### GET `/get-cookie-names`
 
-Lấy danh sách cookie names (array)
+Retrieves an array of cookie names.
 
 **Response:**
 
@@ -245,9 +274,13 @@ Lấy danh sách cookie names (array)
 ["cookie1", "cookie2", "cookie3"]
 ```
 
+**Status Codes:**
+
+- `200 OK`: Success
+
 ### GET `/get-cookies`
 
-Lấy danh sách cookies đầy đủ với metadata
+Retrieves full cookie list with metadata.
 
 **Response:**
 
@@ -261,9 +294,13 @@ Lấy danh sách cookies đầy đủ với metadata
 ]
 ```
 
+**Status Codes:**
+
+- `200 OK`: Success
+
 ### POST `/clear-cookies`
 
-Xóa tất cả cookies
+Clears all stored cookies.
 
 **Response:**
 
@@ -274,9 +311,17 @@ Xóa tất cả cookies
 }
 ```
 
+**Status Codes:**
+
+- `200 OK`: Cookies cleared successfully
+
 ### DELETE `/cookie/:id`
 
-Xóa một cookie cụ thể
+Deletes a specific cookie by ID.
+
+**Parameters:**
+
+- `id` (integer): Cookie ID
 
 **Response:**
 
@@ -287,75 +332,102 @@ Xóa một cookie cụ thể
 }
 ```
 
-## 🎨 Screenshots
+**Status Codes:**
 
-### Notes Plus Extension
+- `200 OK`: Cookie deleted successfully
+- `404 Not Found`: Cookie not found
 
-- Giao diện popup với dark mode
-- Danh sách ghi chú với màu sắc
-- Tìm kiếm và lọc
+## Configuration
 
-### C2 Server Dashboard
+### Server Configuration
 
-- Dashboard chính với bảng cookies
-- Analytics page với biểu đồ
-- Real-time statistics
+The server runs on port 3000 by default. To change the port, modify the `server.js` file:
 
-## 🔒 Permissions
+```javascript
+app.listen(3000, () => {
+  // Change 3000 to your desired port
+});
+```
 
-### Notes Plus Extension
+### Extension Configuration
 
-- `storage`: Lưu trữ ghi chú
-- `contextMenus`: Context menu integration
-- `cookies`: Cookie access (nếu cần)
-- `activeTab`: Access tab content
-- `notifications`: Hiển thị thông báo
-- `host_permissions`: Access all URLs
+Extension settings are stored in Chrome's local storage. Preferences such as dark mode and filter settings are automatically saved and restored.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### Server không khởi động
+### Server Not Starting
 
-- Kiểm tra port 3000 có đang được sử dụng không
-- Đảm bảo đã cài đặt dependencies: `npm install`
-- Kiểm tra Node.js version: `node --version`
+**Issue**: Server fails to start or crashes immediately.
 
-### Extension không hoạt động
+**Solutions**:
 
-- Kiểm tra Developer mode đã bật chưa
-- Reload extension trong `chrome://extensions/`
-- Kiểm tra console để xem lỗi (F12)
+- Verify port 3000 is not in use: `netstat -ano | findstr :3000` (Windows) or `lsof -i :3000` (Mac/Linux)
+- Ensure dependencies are installed: `npm install`
+- Check Node.js version: `node --version` (should be >= 14.x)
+- Review server logs for error messages
 
-### Cookies không hiển thị
+### Extension Not Working
 
-- Kiểm tra server đang chạy
-- Kiểm tra CORS settings
-- Xem Network tab trong DevTools
+**Issue**: Extension does not appear or function incorrectly.
 
-## 🤝 Contributing
+**Solutions**:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Verify Developer mode is enabled in `chrome://extensions/`
+- Reload the extension in `chrome://extensions/`
+- Check browser console for errors (F12)
+- Verify manifest.json is valid
+- Clear extension storage and reload
+
+### Cookies Not Displaying
+
+**Issue**: Cookies are not visible in the dashboard.
+
+**Solutions**:
+
+- Confirm server is running: `http://localhost:3000`
+- Check CORS settings in server configuration
+- Inspect Network tab in browser DevTools
+- Verify API endpoints are accessible
+- Check browser console for error messages
+
+## Contributing
+
+Contributions are welcome and encouraged. Please follow these guidelines:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
+### Code Style
+
+- Follow existing code formatting
+- Add comments for complex logic
+- Update documentation for new features
+- Write clear commit messages
+
+### Pull Request Process
+
+1. Ensure your code follows the project's style guidelines
+2. Update README.md if necessary
+3. Test your changes thoroughly
+4. Submit a clear description of changes
+
+## License
 
 This project is licensed under the ISC License.
 
-## 👤 Author
+## Author
 
-Developed with ❤️ for efficient note-taking and cookie management.
+Developed for efficient note-taking and cookie management.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- [Chart.js](https://www.chartjs.org/) for beautiful charts
-- [Font Awesome](https://fontawesome.com/) for icons
-- [Express.js](https://expressjs.com/) for the web framework
+- [Chart.js](https://www.chartjs.org/) - Data visualization library
+- [Font Awesome](https://fontawesome.com/) - Icon library
+- [Express.js](https://expressjs.com/) - Web application framework
 
----
+## Disclaimer
 
-**Note**: Dự án này được phát triển cho mục đích giáo dục và quản lý cá nhân. Vui lòng sử dụng có trách nhiệm và tuân thủ các quy định về privacy và security.
+This project is developed for educational and personal management purposes. Please use responsibly and in compliance with privacy and security regulations. Users are responsible for ensuring their usage complies with applicable laws and regulations.
